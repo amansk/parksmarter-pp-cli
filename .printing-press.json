@@ -1,0 +1,46 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-12T00:00:00Z",
+  "api_name": "parksmarter",
+  "display_name": "Park Smarter",
+  "cli_name": "parksmarter-pp-cli",
+  "category": "commerce",
+  "creator": {
+    "handle": "amansk",
+    "name": "Amandeep Khurana"
+  },
+  "owner": "amansk",
+  "printer": "amansk",
+  "printer_name": "Amandeep Khurana",
+  "run_id": "20260912-parksmarter-hand",
+  "api_version": "0.1.0",
+  "auth_type": "bearer",
+  "auth_env_vars": [
+    "PARKSMARTER_TOKEN",
+    "PARKSMARTER_PHONE",
+    "PARKSMARTER_PASSWORD"
+  ],
+  "auth_description": "Park Smarter consumer mobile API at apiv3.parksmarter.com uses bearer tokens from POST /api/Auth/LoginWithPhoneAndPassword (or import via auth login --token-file). Not IPS partner DMS APIs.",
+  "description": "Agent-native CLI for Park Smarter (IPS Group) consumer accounts: zone/meter lookup, sessions, and hard-gated start/extend/stop.",
+  "novel_features": [
+    {
+      "name": "Hard-gated live parking",
+      "command": "parking start",
+      "description": "Charges only with --enable-live-parking --owner-approved --confirm \"START PARK SMARTER PARKING\"; parking preview never mutates."
+    },
+    {
+      "name": "Bearer token auth",
+      "command": "auth login",
+      "description": "Phone/password or token import; secrets stored mode 0600 under ~/.config/parksmarter-pp-cli/, never printed."
+    },
+    {
+      "name": "APK-verified consumer host",
+      "command": "doctor --live",
+      "description": "Targets apiv3.parksmarter.com discovered from com.ipsgroupinc.parksmarter v4.4.0, not marketing site or DMS APIs."
+    }
+  ],
+  "spec_path": "PLAN.md",
+  "spec_format": "markdown",
+  "spec_source": "reverse-engineered",
+  "spec_checksum": "sha256:pending"
+}
