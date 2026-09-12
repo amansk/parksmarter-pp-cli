@@ -7,8 +7,13 @@ import (
 	"github.com/amansk/parksmarter-pp-cli/internal/exitcode"
 )
 
+const UnverifiedLoginHint = "login JSON field names are unverified — prefer auth login --token-file from your own HAR, or pass --acknowledge-unverified-body after review"
+
 // LoginWithPhonePassword exchanges phone/password for bearer tokens.
 func (c *Client) LoginWithPhonePassword(in LoginInput) (*auth.Session, error) {
+	if !c.AllowUnverifiedMutations {
+		return nil, exitcode.Usagef("refusing phone/password login: %s", UnverifiedLoginHint)
+	}
 	body := map[string]string{
 		"PhoneNumber": in.PhoneNumber,
 		"Password":    in.Password,

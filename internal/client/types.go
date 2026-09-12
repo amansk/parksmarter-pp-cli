@@ -47,9 +47,10 @@ type ParkingPreview struct {
 	ZoneName     string         `json:"zone_name,omitempty"`
 	SessionID    string         `json:"session_id,omitempty"`
 	Minutes      int            `json:"minutes,omitempty"`
-	DryRun       bool           `json:"dry_run"`
-	Message      string         `json:"message,omitempty"`
-	RequestQuery map[string]any `json:"request_query,omitempty"`
+	DryRun         bool           `json:"dry_run"`
+	Message        string         `json:"message,omitempty"`
+	UnverifiedNote string         `json:"unverified_note,omitempty"`
+	RequestQuery   map[string]any `json:"request_query,omitempty"`
 }
 
 // LoginInput for phone/password auth.

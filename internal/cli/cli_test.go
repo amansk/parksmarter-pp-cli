@@ -126,16 +126,36 @@ func TestParkingStartDryRunWithGates(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("code=%d err=%q out=%q", code, errOut, out)
 	}
-	var payload struct {
-		DryRun  bool              `json:"dry_run"`
-		WouldGet string           `json:"would_get"`
-		Query   map[string]string `json:"query"`
-	}
+	var payload map[string]any
 	if err := json.Unmarshal([]byte(out), &payload); err != nil {
 		t.Fatal(err)
 	}
-	if !payload.DryRun || payload.WouldGet != client.PathStartSession {
+	if payload["dry_run"] != true {
 		t.Fatalf("%+v", payload)
+	}
+	if payload["started"] == true {
+		t.Fatalf("dry-run must not report started=true: %v", payload)
+	}
+}
+
+func TestParkingStartBlocksLiveWithoutAcknowledge(t *testing.T) {
+	code, _, errOut := runCLI(t, "parking", "start",
+		"--meter-number", "100", "--minutes", "60",
+		"--enable-live-parking", "--owner-approved",
+		"--confirm", client.StartConfirmPhrase,
+	)
+	if code != 2 {
+		t.Fatalf("code=%d err=%q", code, errOut)
+	}
+}
+
+func TestAuthLoginPhoneBlocksWithoutAcknowledge(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("PARKSMARTER_PHONE", "+15555550100")
+	t.Setenv("PARKSMARTER_PASSWORD", "secret")
+	code, _, errOut := runCLIWithHome(t, home, "auth", "login")
+	if code != 2 {
+		t.Fatalf("code=%d err=%q", code, errOut)
 	}
 }
 

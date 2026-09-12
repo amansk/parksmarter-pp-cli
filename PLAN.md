@@ -68,7 +68,7 @@ CLI redacts output to **ids + last4** (cards) and plate metadata (vehicles).
 
 ## Meter / zone lookup — auth required
 
-All are **GET** with query parameters (probe: POST → 405).
+All are **GET** with query parameters (auth-gated reads return 401 without token; POST without body returns 411 — not used by CLI).
 
 | Endpoint | Use |
 |----------|-----|
@@ -92,9 +92,17 @@ All are **GET** with query parameters (probe: POST → 405).
 
 Session id field in JSON likely `SessionId` — mapped defensively in client.
 
-## Parking mutations — auth required, GET semantics (verified unusual)
+## Parking mutations — auth required, GET semantics (path verified; query params unverified)
 
-ASP.NET Web API actions accept **GET** (POST returns 405):
+Live probes (Sep 2026, no credentials):
+
+| Endpoint | GET (no auth) | POST (no body) |
+|----------|---------------|----------------|
+| `/api/ParkingSession/StartParkingSession` | **401** | **411** Length Required |
+| `/api/ParkingSession/ExtendSession` | **401** | **411** |
+| `/api/ParkingSession/StopSession` | **401** | **411** |
+
+Mutations are **GET** with query parameters (not POST JSON). ASP.NET returns 401 without a bearer token on GET; POST without `Content-Length` returns 411 — do **not** treat POST 411 as proof of POST semantics.
 
 | Endpoint | CLI command | Confirm phrase |
 |----------|-------------|----------------|
@@ -116,7 +124,9 @@ Not wired in v0 CLI; use app UI or capture HAR to confirm bodies.
 - **Start:** `--enable-live-parking --owner-approved --confirm "START PARK SMARTER PARKING"`
 - **Extend:** `--enable-live-parking --owner-approved --confirm "EXTEND PARK SMARTER PARKING"`
 - **Stop:** `--enable-live-parking --owner-approved --confirm "STOP PARK SMARTER PARKING"`
-- **`--dry-run`:** builds query map; does not send mutating GET.
+- **Live HTTP (non-`--dry-run`):** additionally requires **`--acknowledge-unverified-body`** until HAR-verified query params ship.
+- **Phone/password login:** blocked unless **`--acknowledge-unverified-body`**; prefer `auth login --token-file` from your own HAR.
+- **`--dry-run`:** builds query map; does not send mutating GET; must not emit `started`/`extended`/`stopped: true`.
 
 ## Known gaps / TODO
 

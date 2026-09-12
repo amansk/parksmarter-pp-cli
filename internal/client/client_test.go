@@ -50,6 +50,7 @@ func mockClient(t *testing.T) *client.Client {
 
 func TestLoginWithPhonePassword(t *testing.T) {
 	c := mockClient(t)
+	c.AllowUnverifiedMutations = true
 	s, err := c.LoginWithPhonePassword(client.LoginInput{PhoneNumber: "+15555550100", Password: "secret"})
 	if err != nil {
 		t.Fatal(err)
@@ -81,8 +82,37 @@ func TestNearbyMeters(t *testing.T) {
 	}
 }
 
+func TestLoginWithPhonePasswordBlocksWithoutAcknowledge(t *testing.T) {
+	c := mockClient(t)
+	_, err := c.LoginWithPhonePassword(client.LoginInput{PhoneNumber: "+15555550100", Password: "secret"})
+	if err == nil {
+		t.Fatal("expected error without acknowledge")
+	}
+}
+
+func TestStartSessionDryRunDoesNotMutate(t *testing.T) {
+	c := mockClient(t)
+	c.DryRun = true
+	out, err := c.StartSession(client.StartParkingInput{MeterNumber: "100", Minutes: 60})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out["dry_run"] != true {
+		t.Fatalf("out=%v", out)
+	}
+}
+
+func TestStartSessionBlocksLiveWithoutAcknowledge(t *testing.T) {
+	c := mockClient(t)
+	_, err := c.StartSession(client.StartParkingInput{MeterNumber: "100", Minutes: 60})
+	if err == nil {
+		t.Fatal("expected error without acknowledge")
+	}
+}
+
 func TestStartSession(t *testing.T) {
 	c := mockClient(t)
+	c.AllowUnverifiedMutations = true
 	out, err := c.StartSession(client.StartParkingInput{MeterNumber: "100", Minutes: 60})
 	if err != nil {
 		t.Fatal(err)

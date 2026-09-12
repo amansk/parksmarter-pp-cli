@@ -7,6 +7,8 @@ import (
 	"github.com/amansk/parksmarter-pp-cli/internal/exitcode"
 )
 
+const UnverifiedQueryHint = "mutation GET query params are inferred from ASP.NET conventions only; live shapes need HAR verification — use --dry-run or pass --acknowledge-unverified-body after review"
+
 const (
 	startConfirmPhrase  = "START PARK SMARTER PARKING"
 	extendConfirmPhrase = "EXTEND PARK SMARTER PARKING"
@@ -33,18 +35,61 @@ func (c *Client) PreviewStart(in StartParkingInput) (ParkingPreview, url.Values,
 		Minutes:      in.Minutes,
 		DryRun:       true,
 		Message:      "Preview only — no charge. Use parking start with all safety gates to commit.",
+		UnverifiedNote: UnverifiedQueryHint,
 		RequestQuery: queryToMap(q),
 	}, q, nil
 }
 
-// StartSession starts a live parking session (mutating GET — APK verified Sep 2026).
+func (c *Client) guardLiveMutation() error {
+	if c.DryRun {
+		return nil
+	}
+	if !c.AllowUnverifiedMutations {
+		return exitcode.Usagef("refusing live mutation: %s", UnverifiedQueryHint)
+	}
+	return nil
+}
+
+func mutationDryRunResult(path string, q url.Values) map[string]any {
+	return map[string]any{
+		"dry_run":    true,
+		"would_get":  path,
+		"query":      queryToMap(q),
+		"unverified": true,
+		"note":       UnverifiedQueryHint,
+	}
+}
+
+func validateMutationResponse(out map[string]any, action string) error {
+	if len(out) == 0 {
+		return exitcode.APIf("%s: empty response — cannot confirm session mutation (query params may be wrong; see PLAN.md)", action)
+	}
+	if id := pickString(out, "SessionId", "SessionID", "ParkingSessionId", "Id", "ID", "id"); id != "" {
+		return nil
+	}
+	if pickBool(out, "Success", "success", "IsSuccess", "isSuccess") {
+		return nil
+	}
+	return exitcode.APIf("%s: response missing SessionId/Success — cannot confirm mutation (see PLAN.md)", action)
+}
+
+// StartSession starts a live parking session (mutating GET — path verified Sep 2026; query params unverified).
 func (c *Client) StartSession(in StartParkingInput) (map[string]any, error) {
 	q, err := c.buildStartQuery(in)
 	if err != nil {
 		return nil, err
 	}
+	if err := c.guardLiveMutation(); err != nil {
+		return nil, err
+	}
+	if c.DryRun {
+		return mutationDryRunResult(PathStartSession, q), nil
+	}
 	var out map[string]any
 	if err := c.getJSON(PathStartSession, q, &out); err != nil {
+		return nil, err
+	}
+	if err := validateMutationResponse(out, "start"); err != nil {
 		return nil, err
 	}
 	return out, nil
@@ -62,6 +107,7 @@ func (c *Client) PreviewExtend(in ExtendParkingInput) (ParkingPreview, url.Value
 		Minutes:      in.Minutes,
 		DryRun:       true,
 		Message:      "Preview only — no charge. Use parking extend with all safety gates to commit.",
+		UnverifiedNote: UnverifiedQueryHint,
 		RequestQuery: queryToMap(q),
 	}, q, nil
 }
@@ -72,8 +118,17 @@ func (c *Client) ExtendSession(in ExtendParkingInput) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := c.guardLiveMutation(); err != nil {
+		return nil, err
+	}
+	if c.DryRun {
+		return mutationDryRunResult(PathExtendSession, q), nil
+	}
 	var out map[string]any
 	if err := c.getJSON(PathExtendSession, q, &out); err != nil {
+		return nil, err
+	}
+	if err := validateMutationResponse(out, "extend"); err != nil {
 		return nil, err
 	}
 	return out, nil
@@ -90,6 +145,7 @@ func (c *Client) PreviewStop(in StopParkingInput) (ParkingPreview, url.Values, e
 		SessionID:    in.SessionID,
 		DryRun:       true,
 		Message:      "Preview only. Use parking stop with all safety gates to commit.",
+		UnverifiedNote: UnverifiedQueryHint,
 		RequestQuery: queryToMap(q),
 	}, q, nil
 }
@@ -100,8 +156,17 @@ func (c *Client) StopSession(in StopParkingInput) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := c.guardLiveMutation(); err != nil {
+		return nil, err
+	}
+	if c.DryRun {
+		return mutationDryRunResult(PathStopSession, q), nil
+	}
 	var out map[string]any
 	if err := c.getJSON(PathStopSession, q, &out); err != nil {
+		return nil, err
+	}
+	if err := validateMutationResponse(out, "stop"); err != nil {
 		return nil, err
 	}
 	return out, nil

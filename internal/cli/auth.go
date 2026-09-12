@@ -24,7 +24,7 @@ func newAuthLoginCmd(opt *Options) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login",
 		Short: "Obtain and store a Park Smarter auth token",
-		Long:  "Login with phone/password (via flags or PARKSMARTER_PHONE/PARKSMARTER_PASSWORD env), import a token file, or rely on PARKSMARTER_TOKEN. Tokens are stored mode 0600; secrets are never printed.",
+		Long:  "Login with phone/password (via flags or PARKSMARTER_PHONE/PARKSMARTER_PASSWORD env, requires --acknowledge-unverified-body), import a token file, or rely on PARKSMARTER_TOKEN. Tokens are stored mode 0600; secrets are never printed.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			home, err := opt.ResolveHome()
 			if err != nil {
@@ -54,6 +54,7 @@ func newAuthLoginCmd(opt *Options) *cobra.Command {
 				if opt.HTTP != nil {
 					c = opt.HTTP
 				}
+				c.AllowUnverifiedMutations = opt.AcknowledgeUnverifiedBody
 				sess, err = c.LoginWithPhonePassword(client.LoginInput{
 					PhoneNumber: phoneVal,
 					Password:    passVal,

@@ -18,6 +18,18 @@ func newParkingCmd(opt *Options) *cobra.Command {
 	return cmd
 }
 
+func writeMutationResult(cmd *cobra.Command, opt *Options, verb string, out map[string]any) error {
+	payload := map[string]any{"result": out}
+	if dry, _ := out["dry_run"].(bool); dry {
+		payload["dry_run"] = true
+		payload["unverified"] = true
+	} else {
+		payload[verb] = true
+		payload["unverified"] = true
+	}
+	return writeOut(cmd, opt, payload)
+}
+
 func newParkingPreviewCmd(opt *Options) *cobra.Command {
 	var action, meterNumber, zone, space, sessionID, vehicleID, cardID string
 	var minutes int
@@ -89,31 +101,18 @@ func newParkingStartCmd(opt *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			in := client.StartParkingInput{
+			out, err := c.StartSession(client.StartParkingInput{
 				MeterNumber: meterNumber,
 				ZoneName:    zone,
 				SpaceNumber: space,
 				Minutes:     minutes,
 				VehicleID:   vehicleID,
 				CardID:      cardID,
-			}
-			if opt.DryRun {
-				preview, q, err := c.PreviewStart(in)
-				if err != nil {
-					return err
-				}
-				return writeOut(cmd, opt, map[string]any{
-					"dry_run":     true,
-					"would_get":   client.PathStartSession,
-					"preview":     preview,
-					"query":       client.QueryValuesForTest(q),
-				})
-			}
-			out, err := c.StartSession(in)
+			})
 			if err != nil {
 				return err
 			}
-			return writeOut(cmd, opt, map[string]any{"started": true, "result": out})
+			return writeMutationResult(cmd, opt, "started", out)
 		},
 	}
 	addParkingStartFlags(cmd, &meterNumber, &zone, &space, &minutes, &vehicleID, &cardID, &enableLive, &ownerApproved, &confirm, client.StartConfirmPhrase)
@@ -135,24 +134,11 @@ func newParkingExtendCmd(opt *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			in := client.ExtendParkingInput{SessionID: sessionID, Minutes: minutes}
-			if opt.DryRun {
-				preview, q, err := c.PreviewExtend(in)
-				if err != nil {
-					return err
-				}
-				return writeOut(cmd, opt, map[string]any{
-					"dry_run":   true,
-					"would_get": client.PathExtendSession,
-					"preview":   preview,
-					"query":     client.QueryValuesForTest(q),
-				})
-			}
-			out, err := c.ExtendSession(in)
+			out, err := c.ExtendSession(client.ExtendParkingInput{SessionID: sessionID, Minutes: minutes})
 			if err != nil {
 				return err
 			}
-			return writeOut(cmd, opt, map[string]any{"extended": true, "result": out})
+			return writeMutationResult(cmd, opt, "extended", out)
 		},
 	}
 	cmd.Flags().StringVar(&sessionID, "session-id", "", "Active session id")
@@ -177,24 +163,11 @@ func newParkingStopCmd(opt *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			in := client.StopParkingInput{SessionID: sessionID}
-			if opt.DryRun {
-				preview, q, err := c.PreviewStop(in)
-				if err != nil {
-					return err
-				}
-				return writeOut(cmd, opt, map[string]any{
-					"dry_run":   true,
-					"would_get": client.PathStopSession,
-					"preview":   preview,
-					"query":     client.QueryValuesForTest(q),
-				})
-			}
-			out, err := c.StopSession(in)
+			out, err := c.StopSession(client.StopParkingInput{SessionID: sessionID})
 			if err != nil {
 				return err
 			}
-			return writeOut(cmd, opt, map[string]any{"stopped": true, "result": out})
+			return writeMutationResult(cmd, opt, "stopped", out)
 		},
 	}
 	cmd.Flags().StringVar(&sessionID, "session-id", "", "Active session id")

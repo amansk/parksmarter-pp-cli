@@ -26,12 +26,12 @@ go build -o parksmarter-pp-cli ./cmd/parksmarter-pp-cli
 2. Login and store a bearer token:
 
 ```bash
-# Phone/password via env (recommended — never echoed)
+# Phone/password via env (requires --acknowledge-unverified-body — field names unverified)
 export PARKSMARTER_PHONE='+15555550100'
 export PARKSMARTER_PASSWORD='your-password'
-parksmarter-pp-cli auth login
+parksmarter-pp-cli auth login --acknowledge-unverified-body
 
-# Or import a token captured from your own session (see PLAN.md)
+# Or import a token captured from your own session (recommended — see PLAN.md)
 parksmarter-pp-cli auth login --token-file ./token.json
 ```
 
@@ -74,12 +74,13 @@ parksmarter-pp-cli parking preview --action extend \
   --session-id <id> --minutes 30 --json
 ```
 
-Live start/extend/stop require **all three** gates (exact confirm string per action):
+Live start/extend/stop require **all three** gates (exact confirm string per action) plus **`--acknowledge-unverified-body`** until HAR confirms query params. Prefer `--dry-run` first.
 
 ```bash
 parksmarter-pp-cli parking start --meter-number 12345 --minutes 60 \
   --enable-live-parking --owner-approved \
-  --confirm "START PARK SMARTER PARKING" --json
+  --confirm "START PARK SMARTER PARKING" \
+  --acknowledge-unverified-body --json
 ```
 
 Inspect the request without mutating:
@@ -101,6 +102,7 @@ parksmarter-pp-cli parking start ... --dry-run --json
 | `--json` | Machine-readable JSON output |
 | `--agent` | `--json --no-color --no-input` (does **not** imply `--yes`) |
 | `--dry-run` | Skip mutating GETs where supported |
+| `--acknowledge-unverified-body` | Allow live mutations and phone/password login with unverified request shapes (after HAR review) |
 | `--home` | Override config dir (`$PARKSMARTER_PP_HOME` or `~/.config/parksmarter-pp-cli`) |
 
 ## Exit codes

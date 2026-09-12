@@ -20,6 +20,8 @@ type Client struct {
 	Session   *auth.Session
 	UserAgent string
 	DryRun    bool
+	// AllowUnverifiedMutations permits live parking GET mutations when query params are still unverified.
+	AllowUnverifiedMutations bool
 }
 
 // New constructs a client with optional bearer session.
