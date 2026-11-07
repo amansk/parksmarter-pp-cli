@@ -29,14 +29,14 @@ func (c *Client) PreviewStart(in StartParkingInput) (ParkingPreview, url.Values,
 		return ParkingPreview{}, nil, err
 	}
 	return ParkingPreview{
-		Action:       "start",
-		MeterNumber:  in.MeterNumber,
-		ZoneName:     in.ZoneName,
-		Minutes:      in.Minutes,
-		DryRun:       true,
-		Message:      "Preview only — no charge. Use parking start with all safety gates to commit.",
+		Action:         "start",
+		MeterNumber:    in.MeterNumber,
+		ZoneName:       in.ZoneName,
+		Minutes:        in.Minutes,
+		DryRun:         true,
+		Message:        "Preview only — no charge. Use parking start with all safety gates to commit.",
 		UnverifiedNote: UnverifiedQueryHint,
-		RequestQuery: queryToMap(q),
+		RequestQuery:   queryToMap(q),
 	}, q, nil
 }
 
@@ -102,13 +102,13 @@ func (c *Client) PreviewExtend(in ExtendParkingInput) (ParkingPreview, url.Value
 		return ParkingPreview{}, nil, err
 	}
 	return ParkingPreview{
-		Action:       "extend",
-		SessionID:    in.SessionID,
-		Minutes:      in.Minutes,
-		DryRun:       true,
-		Message:      "Preview only — no charge. Use parking extend with all safety gates to commit.",
+		Action:         "extend",
+		SessionID:      in.SessionID,
+		Minutes:        in.Minutes,
+		DryRun:         true,
+		Message:        "Preview only — no charge. Use parking extend with all safety gates to commit.",
 		UnverifiedNote: UnverifiedQueryHint,
-		RequestQuery: queryToMap(q),
+		RequestQuery:   queryToMap(q),
 	}, q, nil
 }
 
@@ -141,12 +141,12 @@ func (c *Client) PreviewStop(in StopParkingInput) (ParkingPreview, url.Values, e
 		return ParkingPreview{}, nil, err
 	}
 	return ParkingPreview{
-		Action:       "stop",
-		SessionID:    in.SessionID,
-		DryRun:       true,
-		Message:      "Preview only. Use parking stop with all safety gates to commit.",
+		Action:         "stop",
+		SessionID:      in.SessionID,
+		DryRun:         true,
+		Message:        "Preview only. Use parking stop with all safety gates to commit.",
 		UnverifiedNote: UnverifiedQueryHint,
-		RequestQuery: queryToMap(q),
+		RequestQuery:   queryToMap(q),
 	}, q, nil
 }
 

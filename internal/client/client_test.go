@@ -26,7 +26,7 @@ func mockClient(t *testing.T) *client.Client {
 		case client.PathMetersNearby:
 			_, _ = w.Write([]byte(`{"Meters":[{"MeterId":"m1","MeterNumber":"100","ZoneName":"Z1","Latitude":32.7,"Longitude":-117.1}]}`))
 		case client.PathMeterByNumber:
-			_, _ = w.Write([]byte(`{"Meters":[{"MeterId":"m2","MeterNumber":"`+r.URL.Query().Get("MeterNumber")+`"}]}`))
+			_, _ = w.Write([]byte(`{"Meters":[{"MeterId":"m2","MeterNumber":"` + r.URL.Query().Get("MeterNumber") + `"}]}`))
 		case client.PathSessionsActive:
 			_, _ = w.Write([]byte(`{"Sessions":[{"SessionId":"s1","Status":"active","MeterNumber":"100"}]}`))
 		case client.PathSessionsPast:
@@ -34,9 +34,9 @@ func mockClient(t *testing.T) *client.Client {
 		case client.PathStartSession:
 			_, _ = w.Write([]byte(`{"SessionId":"s-new","Status":"active"}`))
 		case client.PathExtendSession:
-			_, _ = w.Write([]byte(`{"SessionId":"`+r.URL.Query().Get("SessionId")+`","Status":"extended"}`))
+			_, _ = w.Write([]byte(`{"SessionId":"` + r.URL.Query().Get("SessionId") + `","Status":"extended"}`))
 		case client.PathStopSession:
-			_, _ = w.Write([]byte(`{"SessionId":"`+r.URL.Query().Get("SessionId")+`","Status":"stopped"}`))
+			_, _ = w.Write([]byte(`{"SessionId":"` + r.URL.Query().Get("SessionId") + `","Status":"stopped"}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}

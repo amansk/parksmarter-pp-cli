@@ -1,0 +1,6 @@
+# Built binaries and build output
+/parksmarter-pp-cli
+/parksmarter-pp-mcp
+/bin/
+/build/
+/dist/

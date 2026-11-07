@@ -4,10 +4,10 @@ import "encoding/json"
 
 // CardSummary is a redacted payment method row.
 type CardSummary struct {
-	ID     string `json:"id,omitempty"`
-	Last4  string `json:"last4,omitempty"`
-	Brand  string `json:"brand,omitempty"`
-	Default bool  `json:"is_default,omitempty"`
+	ID      string `json:"id,omitempty"`
+	Last4   string `json:"last4,omitempty"`
+	Brand   string `json:"brand,omitempty"`
+	Default bool   `json:"is_default,omitempty"`
 }
 
 // VehicleSummary is a vehicle row without PII beyond plate metadata.
@@ -42,11 +42,11 @@ type SessionSummary struct {
 
 // ParkingPreview is a dry-run quote for start/extend.
 type ParkingPreview struct {
-	Action       string         `json:"action"`
-	MeterNumber  string         `json:"meter_number,omitempty"`
-	ZoneName     string         `json:"zone_name,omitempty"`
-	SessionID    string         `json:"session_id,omitempty"`
-	Minutes      int            `json:"minutes,omitempty"`
+	Action         string         `json:"action"`
+	MeterNumber    string         `json:"meter_number,omitempty"`
+	ZoneName       string         `json:"zone_name,omitempty"`
+	SessionID      string         `json:"session_id,omitempty"`
+	Minutes        int            `json:"minutes,omitempty"`
 	DryRun         bool           `json:"dry_run"`
 	Message        string         `json:"message,omitempty"`
 	UnverifiedNote string         `json:"unverified_note,omitempty"`
