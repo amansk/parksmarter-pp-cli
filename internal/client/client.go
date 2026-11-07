@@ -27,9 +27,9 @@ type Client struct {
 // New constructs a client with optional bearer session.
 func New(session *auth.Session) *Client {
 	return &Client{
-		BaseURL: DefaultBaseURL,
-		HTTP:    &http.Client{Timeout: 30 * time.Second},
-		Session: session,
+		BaseURL:   DefaultBaseURL,
+		HTTP:      &http.Client{Timeout: 30 * time.Second},
+		Session:   session,
 		UserAgent: "parksmarter-pp-cli/0.1.0 (+https://github.com/amansk/parksmarter-pp-cli)",
 	}
 }

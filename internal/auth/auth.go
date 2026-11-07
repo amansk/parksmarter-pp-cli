@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	AppName    = "parksmarter-pp-cli"
-	TokenEnv   = "PARKSMARTER_TOKEN"
-	PhoneEnv   = "PARKSMARTER_PHONE"
+	AppName     = "parksmarter-pp-cli"
+	TokenEnv    = "PARKSMARTER_TOKEN"
+	PhoneEnv    = "PARKSMARTER_PHONE"
 	PasswordEnv = "PARKSMARTER_PASSWORD"
 )
 
